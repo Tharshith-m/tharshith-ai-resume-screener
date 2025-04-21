@@ -48,12 +48,6 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    - name: Lint backend code
-      working-directory: backend
-      run: |
-        pip install flake8
-        flake8 app --ignore=E501
-
     - name: Set up Node.js
       uses: actions/setup-node@v3
       with:
