@@ -1,0 +1,24 @@
+fastapi
+uvicorn[standard]
+cloudinary
+pymongo
+psycopg2-binary
+redis
+python-dotenv
+opensearch-py
+pdfplumber
+python-docx
+spacy
+python-multipart
+PyMuPDF
+SQLAlchemy>=1.4
+alembic
+google-generativeai
+scikit-learn
+pydantic[email]
+passlib[bcrypt]
+celery[redis]
+bcrypt==3.2.2
+nltk
+spacy==3.7.2  # or the latest version you're using
+

@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.env
+
+# VS Code
+.vscode/
+
+# Docker
+*.log
+*.pid
+*.sock
+
+# Node.js (when frontend is ready)
+node_modules/
+dist/
+build/
+
+# Others
+.env.local
+.DS_Store
