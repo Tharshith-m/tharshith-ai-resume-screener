@@ -3,11 +3,13 @@ from sqlalchemy.orm import Session
 from app.config.postgres_config import get_db
 from app.config.opensearch_config import opensearch_client
 from app.models.job_posting import Job
+
 # utils/ner_extraction.py
 import spacy
 import re
 
 nlp = spacy.load("en_core_web_sm")
+
 
 def extract_fields_from_description(text: str):
     doc = nlp(text)
@@ -16,7 +18,15 @@ def extract_fields_from_description(text: str):
     location = []
 
     # You can tune these based on how your data is structured
-    skill_keywords = {"python", "java", "c++", "sql", "react", "node", "docker"}  # Extend as needed
+    skill_keywords = {
+        "python",
+        "java",
+        "c++",
+        "sql",
+        "react",
+        "node",
+        "docker",
+    }  # Extend as needed
     for token in doc:
         if token.text.lower() in skill_keywords:
             skills.append(token.text.lower())
@@ -32,11 +42,12 @@ def extract_fields_from_description(text: str):
     return {
         "skills": list(set(skills)),
         "experience": list(set(experience)),
-        "location": list(set(location))
+        "location": list(set(location)),
     }
 
 
 router = APIRouter()
+
 
 @router.get("/rank_candidates")
 def rank_candidates(job_id: int, db: Session = Depends(get_db)):
@@ -62,7 +73,7 @@ def rank_candidates(job_id: int, db: Session = Depends(get_db)):
     #         {"_score": {"order": "desc"}}
     #     ]
     # }
-     # 2. Search only resumes related to this job_id and rank them
+    # 2. Search only resumes related to this job_id and rank them
     query = {
         "size": 20,
         "query": {
@@ -72,18 +83,14 @@ def rank_candidates(job_id: int, db: Session = Depends(get_db)):
                         "multi_match": {
                             "query": job_description,
                             "fields": ["skills", "branch", "location", "experience"],
-                            "fuzziness": "AUTO"
+                            "fuzziness": "AUTO",
                         }
                     }
                 ],
-                "filter": [
-                    { "term": { "job_id": job_id } }
-                ]
+                "filter": [{"term": {"job_id": job_id}}],
             }
         },
-        "sort": [
-            {"_score": {"order": "desc"}}
-        ]
+        "sort": [{"_score": {"order": "desc"}}],
     }
 
     response = opensearch_client.search(index="resumes_index", body=query)
@@ -97,7 +104,7 @@ def rank_candidates(job_id: int, db: Session = Depends(get_db)):
     return {
         "job_id": job_id,
         "job_title": job.job_name,
-        "matched_candidates": ranked_candidates
+        "matched_candidates": ranked_candidates,
     }
     # skills = extracted["skills"]
     # experience = extracted["experience"]

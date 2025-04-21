@@ -1,6 +1,8 @@
 from sqlalchemy import Column, Integer, String, ForeignKey
 from app.config.postgres_config import Base
 from sqlalchemy.orm import relationship
+
+
 class Job(Base):
     __tablename__ = "jobs"
 

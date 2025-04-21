@@ -1,4 +1,5 @@
 from app.config.postgres_config import Base, engine
+
 # from app.models import user, application_resume , job_posting
 from app.models.job_posting import Job
 from app.models.application_resume import ApplicationResume
@@ -7,6 +8,7 @@ import logging
 
 
 logger = logging.getLogger(__name__)
+
 
 def init_db():
     try:
@@ -18,6 +20,7 @@ def init_db():
         logger.info("✅ All tables created.2️⃣")
     except Exception as e:
         print("Error creating tables:", e)
+
 
 if __name__ == "__main__":
     init_db()

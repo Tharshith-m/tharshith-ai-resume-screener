@@ -7,6 +7,7 @@ from app.schemas.job_schema import JobCreate
 
 router = APIRouter()
 
+
 @router.post("/post-job")
 def post_job(job: JobCreate, db: Session = Depends(get_db)):
     # Find the user posting this job (based on email)
@@ -18,9 +19,9 @@ def post_job(job: JobCreate, db: Session = Depends(get_db)):
         job_name=job.job_name,
         company=user.company,
         description=job.description,
-        posted_by=user.name
+        posted_by=user.name,
     )
-# with this line it would know that the job is posted by the user
+    # with this line it would know that the job is posted by the user
     db.add(new_job)
     #  this adds the data into the database
     db.commit()
@@ -30,5 +31,5 @@ def post_job(job: JobCreate, db: Session = Depends(get_db)):
         "message": "Job posted successfully",
         "job_id": new_job.id,
         "posted_by": new_job.posted_by,
-        "company": new_job.company
+        "company": new_job.company,
     }

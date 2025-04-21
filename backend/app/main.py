@@ -1,8 +1,18 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import logging
-from app.routes import register , login , job_postings , upload_resume , rank_candidates , search_resume , redis_route , opensearch_route
+from app.routes import (
+    register,
+    login,
+    job_postings,
+    upload_resume,
+    rank_candidates,
+    search_resume,
+    redis_route,
+    opensearch_route,
+)
 from app.db_init import init_db
+
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
@@ -11,6 +21,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 # init_db()  # Will run at startup
 @app.on_event("startup")

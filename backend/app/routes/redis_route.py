@@ -28,10 +28,14 @@ router = APIRouter()
 
 # 🔁 Function to store readable search terms
 def cache_search_query(skills: str, location: str, experience: str):
-    key = f"candidate_search:Skills={skills}|Location={location}|Experience={experience}"
-    
+    key = (
+        f"candidate_search:Skills={skills}|Location={location}|Experience={experience}"
+    )
+
     # Optional: make key URL-safe (not required unless keys have spaces or special chars)
-    safe_key = quote(key, safe='')  # You can skip this line if not using unsafe characters
+    safe_key = quote(
+        key, safe=""
+    )  # You can skip this line if not using unsafe characters
 
     redis_client.setex(key, 3600, "")  # Store key for 1 hour
 

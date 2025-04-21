@@ -1,4 +1,3 @@
-
 from sqlalchemy.orm import Session
 from datetime import datetime
 from uuid import uuid4
@@ -12,7 +11,7 @@ import json
 from opensearchpy import OpenSearch
 from app.config.postgres_config import get_db
 from app.config.cloudinary_config import cloudinary
-from app.config.postgres_config import SessionLocal 
+from app.config.postgres_config import SessionLocal
 import re
 from app.celery_worker import celery_app
 from datetime import date
@@ -24,6 +23,7 @@ current_date = date.today().isoformat()
 genai.configure(api_key="AIzaSyBXjFtsGPLJMklnsYtjJDMe_99g5Om4zGA")
 model = genai.GenerativeModel("gemini-2.0-flash")
 
+
 def format_experience(exp_float: float) -> str:
     total_months = round(exp_float * 12)
     years = total_months // 12
@@ -34,6 +34,7 @@ def format_experience(exp_float: float) -> str:
     if months > 0:
         parts.append(f"{months} month{'s' if months != 1 else ''}")
     return " ".join(parts) if parts else "0 months"
+
 
 @celery_app.task
 def process_resume_task(raw_text, mongo_id, cloudinary_url, job_id):
@@ -96,13 +97,15 @@ def process_resume_task(raw_text, mongo_id, cloudinary_url, job_id):
         # structured_data = json.loads(response.text)
         cleaned_text = re.sub(r"^```json|```$", "", response.text.strip()).strip()
 
-# Optional: debug output
+        # Optional: debug output
         print("🧼 Cleaned Gemini JSON string:", cleaned_text)
 
-# Now parse safely
+        # Now parse safely
         structured_data = json.loads(cleaned_text)
         skills_list = structured_data.get("skills")
-        skills = ", ".join(skills_list) if isinstance(skills_list, list) else skills_list
+        skills = (
+            ", ".join(skills_list) if isinstance(skills_list, list) else skills_list
+        )
 
         # print("near application resume model 🔍🔍🔍🔍🔍🔍🔍🔔🔔🔔🔔")
         # print("----------------------------❌❌❌❌❌❌❌❌❌❌❌❌-----------------")
@@ -124,7 +127,7 @@ def process_resume_task(raw_text, mongo_id, cloudinary_url, job_id):
             experience=structured_data.get("experience"),
             cloudinary_url=cloudinary_url,
             mongo_id=mongo_id,
-            opensearch_index="resumes_index"
+            opensearch_index="resumes_index",
         )
         db.add(resume_entry)
         db.commit()
@@ -148,7 +151,7 @@ def process_resume_task(raw_text, mongo_id, cloudinary_url, job_id):
                 "experience": formatted_experience,
                 "mongo_id": mongo_id,
                 "cloudinary_url": cloudinary_url,
-            }
+            },
         )
         print(f"📦 Indexed resume {doc_id} in OpenSearch.")
         print("✅ Processing inside Celery Task...")

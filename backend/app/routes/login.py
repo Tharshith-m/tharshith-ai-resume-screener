@@ -9,21 +9,22 @@ router = APIRouter()
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
+
 @router.post("/login")
 def login_user(user: UserLogin, db: Session = Depends(get_db)):
     # Check if user exists
     db_user = db.query(User).filter(User.email == user.email).first()
     if not db_user:
         raise HTTPException(status_code=400, detail="Invalid email or password")
-    
+
     # Check password
     if not pwd_context.verify(user.password, db_user.hashed_password):
         raise HTTPException(status_code=400, detail="Invalid email or password")
-    
+
     return {
         "message": "Login successful",
         "user_id": db_user.id,
         "name": db_user.name,
         "email": db_user.email,
-        "company": db_user.company
+        "company": db_user.company,
     }

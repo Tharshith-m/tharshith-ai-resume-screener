@@ -18,6 +18,7 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 # Base for ORM models
 Base = declarative_base()
 
+
 # Dependency for FastAPI routes
 def get_db():
     db = SessionLocal()
@@ -25,6 +26,7 @@ def get_db():
         yield db
     finally:
         db.close()
+
 
 # Optional test
 def test_connection():
@@ -34,6 +36,7 @@ def test_connection():
         print("✅ PostgreSQL connected successfully!")
     except Exception as e:
         print("❌ PostgreSQL connection failed:", e)
+
 
 if __name__ == "__main__":
     test_connection()

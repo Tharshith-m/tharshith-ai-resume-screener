@@ -1,4 +1,12 @@
-from fastapi import APIRouter, UploadFile, File, BackgroundTasks, Depends, HTTPException, status
+from fastapi import (
+    APIRouter,
+    UploadFile,
+    File,
+    BackgroundTasks,
+    Depends,
+    HTTPException,
+    status,
+)
 from sqlalchemy.orm import Session
 from datetime import datetime
 import cloudinary.uploader
@@ -11,20 +19,22 @@ import json
 from opensearchpy import OpenSearch
 from app.config.postgres_config import get_db
 from app.config.cloudinary_config import cloudinary
-from app.config.postgres_config import SessionLocal 
+from app.config.postgres_config import SessionLocal
 import re
 from app.routes.resume_tasks import process_resume_task
 from fastapi import Form
 from app.models.application_resume import ApplicationResume
+
 # from app.schemas import User
 # from auth import get_current_user
 from app.config.mongodb_config import resume_collection
 from app.config.opensearch_config import opensearch_client
 
-router = APIRouter()   
+router = APIRouter()
 
 
 from datetime import date
+
 current_date = date.today().isoformat()
 
 
@@ -34,7 +44,6 @@ def upload_resumes(
     user_id: int = Form(...),
     files: list[UploadFile] = File(...),
     db: Session = Depends(get_db),
-
 ):
     failed_uploads = []
     success_uploads = []
@@ -42,7 +51,9 @@ def upload_resumes(
     for file in files:
         try:
             # Upload to Cloudinary
-            upload_result = cloudinary.uploader.upload(file.file, folder="resumes_tharshith")
+            upload_result = cloudinary.uploader.upload(
+                file.file, folder="resumes_tharshith"
+            )
             cloudinary_url = upload_result["secure_url"]
 
             # Extract raw text
@@ -59,7 +70,7 @@ def upload_resumes(
                 "filename": file.filename,
                 "uploaded_at": datetime.utcnow(),
                 "cloudinary_url": cloudinary_url,
-                "raw_text": text
+                "raw_text": text,
             }
             insert_result = resume_collection.insert_one(resume_doc)
             mongo_id = str(insert_result.inserted_id)
@@ -69,9 +80,8 @@ def upload_resumes(
                 raw_text=text,
                 mongo_id=mongo_id,
                 cloudinary_url=cloudinary_url,
-                job_id=job_id
+                job_id=job_id,
             )
-
 
             success_uploads.append(file.filename)
 
@@ -82,9 +92,8 @@ def upload_resumes(
     return {
         "message": "Resumes uploaded successfully (processing in background).",
         "success": success_uploads,
-        "failed": failed_uploads
-    } 
-
+        "failed": failed_uploads,
+    }
 
 
 # Convert float experience to "X year Y months"
@@ -100,7 +109,6 @@ def upload_resumes(
 #     return " ".join(parts) if parts else "0 months"
 
 
-
 # def process_resume_task(raw_text, mongo_id, cloudinary_url, job_id):
 #     print("came in ❌❌❌❌❌❌❌❌❌❌❌❌❌❌")
 #     print("TYPE OF current_date:🫥🫥🫥🫥🫥", type(current_date))
@@ -114,7 +122,7 @@ def upload_resumes(
 #             2. **Email**
 #             3. **Phone number**
 #             4. **LinkedIn URL**
-#             5.College 
+#             5.College
 #             6.branch
 #             7. **Technical Skills** — Extract every word or phrase that represents a programming language, tool, software, framework, library, or technology. Include skills mentioned under experience, projects, certifications, publications, seminars, and anywhere else in the resume.
 #             8. **Experience** — For each job:
@@ -128,29 +136,29 @@ def upload_resumes(
 #             9. Location of the person : If prefered location is mentioned in the resume then add that location to the json otherwise add the location of the recent study like college location or school location
 
 #             return like json {{    id: auto,----- these are not required
-#                                         job_id: ------these are not required 
-#                                         person_name: ..., 
-#                                         email: ..., 
-#                                         linkedin_profile: ..., 
-#                                         college: ..., 
-#                                         branch: ..., 
-#                                         skills: [...], 
-#                                         location: ..., 
-#                                         experience: float, 
-#                                         cloudinary_url: ..., 
-#                                         mongo_id: ..., 
+#                                         job_id: ------these are not required
+#                                         person_name: ...,
+#                                         email: ...,
+#                                         linkedin_profile: ...,
+#                                         college: ...,
+#                                         branch: ...,
+#                                         skills: [...],
+#                                         location: ...,
+#                                         experience: float,
+#                                         cloudinary_url: ...,
+#                                         mongo_id: ...,
 #                                         opensearch_index: ...}}
 
 #             # Notes:
 #             - Do NOT include soft skills, education, summary, certifications, achievements, or anything else.
 #             - You must focus only on name, phone, email, LinkedIn, technical_skills, and experience (with duration calculated precisely).
-#             - For duration parsing: 
+#             - For duration parsing:
 #             - Subtract dates in YYYY-MM-DD format.
 #             - If duration is written directly like "Worked for 2 years and 3 months", sum such durations too.
 #             - Output a clean and compact JSON structure without comments.
 #             - Be as accurate and exhaustive as possible when identifying technical skills from all parts of the resume.
-#             - if no experienc is found return 0 years of experience and 0 months of internship and if only months are mentioned like oct-2022 to nov 2022 consider the difference between months 
-#             - the value of the total expereince should be in float like if the expereince is 1 year 2 months then change it to float value and return like 1 year = 12 and 2 months ==> 14 and then 14/12 = 1.1666666666666667 so return this value by rounding to 2 decimals like 1.17 and return like a float value 
+#             - if no experienc is found return 0 years of experience and 0 months of internship and if only months are mentioned like oct-2022 to nov 2022 consider the difference between months
+#             - the value of the total expereince should be in float like if the expereince is 1 year 2 months then change it to float value and return like 1 year = 12 and 2 months ==> 14 and then 14/12 = 1.1666666666666667 so return this value by rounding to 2 decimals like 1.17 and return like a float value
 #             -Return JSON only. Do not use Markdown syntax (no ```json ... ```).
 
 #             Resume:

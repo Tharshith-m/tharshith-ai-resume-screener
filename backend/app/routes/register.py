@@ -7,6 +7,7 @@ from app.utils.hashing import hash_password
 
 router = APIRouter()
 
+
 @router.post("/register", status_code=status.HTTP_201_CREATED)
 def register_user(user: UserCreate, db: Session = Depends(get_db)):
     # Check if user already exists
@@ -20,7 +21,7 @@ def register_user(user: UserCreate, db: Session = Depends(get_db)):
         name=user.name,
         company=user.company,
         email=user.email,
-        hashed_password=hashed_pw
+        hashed_password=hashed_pw,
     )
     db.add(db_user)
     db.commit()
